@@ -149,6 +149,6 @@ class Joueur:
         """
         s = '{}\n'.format(self.nom)
         s += 'Score: {}\n'.format(self.points)
-        s += '            ' + ''.join(['{:<3s}'.format(str(x)) if x else '  ' for x in self.chevalet])
-        s += '\nChevalet: \_' + '__'.join([chr(0x2080 + i + 1) for i in range(self.taille_chevalet)]) + '_/\n'
+        # s += '            ' + ''.join(['{:<3s}'.format(str(x)) if x else '  ' for x in self.chevalet])
+        # s += '\nChevalet: \_' + '__'.join([chr(0x2080 + i + 1) for i in range(self.taille_chevalet)]) + '_/\n'
         return s

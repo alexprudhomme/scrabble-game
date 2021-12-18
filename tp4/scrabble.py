@@ -1,5 +1,5 @@
 import pickle
-from tkinter import Canvas, NSEW, Tk, W, Frame, Button, messagebox, simpledialog
+from tkinter import Canvas, NSEW, Tk, W, S, N, SE, Frame, Button, messagebox, simpledialog, Label, StringVar
 from pathlib import Path
 from random import choice, shuffle
 
@@ -45,22 +45,24 @@ class Scrabble(Tk):
         self.grid_rowconfigure(0, weight=1)
 
         self.plateau = Plateau(self, self.nb_pixels_par_case)
-        self.plateau.grid(row=0, column=0, sticky=NSEW)
+        self.plateau.grid(row=0, column=0, sticky=N)
 
         self.chevalet = Canvas(self, height=self.nb_pixels_par_case, width=7*self.nb_pixels_par_case, bg='#645b4b')
-        self.chevalet.grid(sticky=W)
+        self.chevalet.grid(row=1, column=0, sticky=S)
 
         self.position_selection_chevalet = None
 
         # Création des boutons
-        paneau_bouton = Frame(self)
-        paneau_bouton.grid(row=0,column=1)
+        panneau_boutons = Frame(self)
+        panneau_boutons.grid(row=1, column=1, sticky=SE)
 
-        bouton = Button(paneau_bouton, text="Mélanger le chevalet", command=self.clic_melanger_chevalet)
+        bouton = Button(panneau_boutons, text="Mélanger le chevalet", command=self.clic_melanger_chevalet)
         bouton.grid(row=0, column=0, pady=5)
 
-        bouton = Button(paneau_bouton, text="Jouer", command=self.jouer_un_tour)
+        bouton = Button(panneau_boutons, text="Jouer", command=self.jouer_un_tour)
         bouton.grid(row=1, column=0, pady=5)
+
+
 
         # Associe les évènements aux méthodes correspondants
         self.plateau.tag_bind('case', '<Button-1>', self.clic_case_plateau)
@@ -80,6 +82,25 @@ class Scrabble(Tk):
             langue = simpledialog.askstring('Langue', 'Entrez FR pour francais et EN pour anglais')
 
         self.initialiser_jeu(nbr_joueurs, langue)
+        # Creation des informations joueur
+        self.afficher_info_joueurs()
+    def afficher_info_joueurs(self):
+        """Affiche les info des joueurs
+
+        :return:
+        """
+        panneau_joueurs = Frame(self)
+        panneau_joueurs.grid(row=0, column=1, sticky=N)
+        i = 0
+        for x in self.joueurs:
+            var = StringVar()
+            var.set(x.__str__())
+            if x == self.joueur_actif:
+                l = Label(panneau_joueurs, textvariable=var, bg='#00fbff', font='Arial', relief='raised')
+            else:
+                l = Label(panneau_joueurs, textvariable=var)
+            l.grid(row=0+i, column=0)
+            i = i+1
 
     def initialiser_jeu(self, nb_joueurs=2, langue='fr'):
         """
@@ -160,6 +181,7 @@ class Scrabble(Tk):
         self.position_selection_chevalet = None
         self.plateau.dessiner()
         self.dessiner_chevalet()
+        self.afficher_info_joueurs()
 
     def clic_lettre_chevalet(self, event):
         """
@@ -230,6 +252,7 @@ class Scrabble(Tk):
         Le nouveau joueur actif est celui à l'index du (joueur courant + 1) % nb_joueurs.
         Si on n'a aucun joueur actif, on détermine au hasard le suivant.
         """
+
         if self.joueur_actif is None:
             self.joueur_actif = choice(self.joueurs)
         else:
@@ -238,9 +261,9 @@ class Scrabble(Tk):
         if self.joueur_actif.nb_a_tirer() > 0:
             for jeton in self.tirer_jetons(self.joueur_actif.nb_a_tirer()):
                 self.joueur_actif.ajouter_jeton(jeton)
-
         self.position_selection_chevalet = None
         self.dessiner_chevalet()
+        self.afficher_info_joueurs()
 
     def dessiner_chevalet(self):
         """
@@ -280,6 +303,7 @@ class Scrabble(Tk):
 
         NOTE: Vous devez compléter cette méthode afin de passer au joueur suivant!
         """
+        points_depart = self.joueur_actif.points
         liste_jetons, liste_positions = self.plateau.retirer_jetons_en_jeu()
         if len(liste_positions) == 0:
             messagebox.showerror('Oups!', "Aucun jeton n'est pacé sur le plateau.")
@@ -300,6 +324,8 @@ class Scrabble(Tk):
         for jeton in liste_jetons:
             self.joueur_actif.ajouter_jeton(jeton)
         self.reinitialiser_tour()
+        if points_depart != self.joueur_actif.points:
+            self.joueur_suivant()
 
     def sauvegarder_partie(self, nom_fichier):
         """
