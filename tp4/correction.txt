@@ -1,0 +1,75 @@
+﻿**************************
+Fichier de correction TP4
+**************************
+
+Nous avons utilisé la solution publiée du TP3 ou la base de code fournie pour le TP4 (oui, non, partiellement):
+
+Nous souhaitons soumettre notre TP4 pour le prix "Pierre Ardouin" (oui, non):
+(si oui, inscrivez dans la section plus bas les fonctionalités que vous avez ajoutées au jeu) 
+
+Étudiant 1
+---------------
+Prénom et Nom:
+Numéro de dossier (NI):
+Temps de réalisation: 
+
+Étudiant 2
+---------------
+Prénom et Nom:
+Numéro de dossier (NI):
+Temps de réalisation: 
+
+
+Fonctionnalités obligatoires
+----------------------------
+
+/10 : Le plateau est bien dessiné en tout temps
+     Commentaires :
+
+/10 : Les informations de partie sont affichées (points des joueurs et nom du joueur courant)
+     Commentaires :
+	 
+/5 : Le joueur actif peut passer son tour via un bouton
+     Commentaires :
+
+/10 : Le tour des joueurs est alterné correctement (le joueur actif voit son chevalet)
+     Commentaires :
+
+/10 : Après un tour, le chevalet est rempli en tirant de nouveaux jetons
+     Commentaires : 
+
+/10: La fin de la partie est détectée et affichée
+     Commentaires :
+
+/5 : On peut démarrer une nouvelle partie via un bouton
+     Commentaires :
+	 
+/5 : Lors d'une nouvelle partie, on permet de choisir la langue du jeu
+
+/5 : Lors d'une nouvelle partie, on permet de choisir le nombre de joueurs
+
+/5 : Qualité des messages d'erreur donnés à l'utilisateur
+     Commentaires :
+
+/20 : Utilisation de la gestion des exceptions
+     Commentaires :
+
+/5 : Qualité du code
+     Commentaires :
+	 
+
+Fonctionnalités facultatives (nécessaire pour participer au prix Pierre Ardouin) 
+--------------------------------------------------------------------------------
+
+
+
+Pénalités pour non-respect des consignes
+----------------------------------------
+
+
+
+Autres commentaires du correcteur
+---------------------------------
+
+
+Total: /100
