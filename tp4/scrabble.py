@@ -190,7 +190,7 @@ class Scrabble(Tk):
                     ('P', 2, 3), ('F', 2, 4), ('H', 2, 4), ('V', 2, 4), ('J', 1, 8),
                     ('Q', 1, 8), ('K', 1, 10), ('W', 1, 10), ('X', 1, 10), ('Y', 1, 10),
                     ('Z', 1, 10)]
-            data2 = [('E', 6, 1), ('T', 6, 1)]
+
 
             chemin_fichier_dictionnaire = BASE_DIR / 'dictionnaire_francais.txt'
         elif langue.upper() == 'EN':
@@ -202,7 +202,7 @@ class Scrabble(Tk):
                     ('Q', 1, 10), ('K', 1, 5), ('W', 2, 4), ('X', 1, 8), ('Y', 2, 4),
                     ('Z', 1, 10)]
             chemin_fichier_dictionnaire = BASE_DIR / 'dictionnaire_anglais.txt'
-        self.jetons_libres = [Jeton(lettre, valeur) for lettre, occurences, valeur in data2 for i in range(occurences)]
+        self.jetons_libres = [Jeton(lettre, valeur) for lettre, occurences, valeur in data for i in range(occurences)]
         with open(chemin_fichier_dictionnaire, 'r') as f:
             self.dictionnaire = [x[:-1].upper() for x in f.readlines() if len(x[:-1]) > 1]
 
