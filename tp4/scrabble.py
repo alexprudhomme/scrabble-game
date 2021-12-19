@@ -148,8 +148,10 @@ class Scrabble(Tk):
                 - Si la langue n'est ni 'fr', 'FR', 'en', ou 'EN'.
                 - Si le nombre de joueurs n'est pas compris entre 2 et 4 (2 et 4 étant inclus).
         """
-        assert langue.upper() in ['FR', 'EN'], 'Langue non supportée.'
-        assert 2 <= nb_joueurs <= 4, 'Il faut entre 2 et 4 personnes pour jouer.'
+        if not langue.upper() in ['FR', 'EN']:
+            raise MauvaiseLangue
+        if not 2 <= nb_joueurs <= 4:
+            raise MauvaisNbrJoueurs
 
         self.joueur_actif = None
         self.joueurs = [Joueur(f'Joueur {i + 1}') for i in range(nb_joueurs)]

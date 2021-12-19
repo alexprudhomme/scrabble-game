@@ -353,8 +353,12 @@ class Plateau(Canvas):
                 - Si le nombre de jetons à ajouter est différent du nombre de positions fournies.
                 - Si les positions sont invalides.
         """
-        assert len(jetons_a_ajouter) == len(position_codes), 'Le nombre de jetons est différent du nombre de positions.'
-        assert self.valider_positions_avant_ajout(position_codes), "Les positions pour l'ajout sont invalides."
+
+        if not len(jetons_a_ajouter) == len(position_codes):
+            raise PositionInvalideException
+
+        if not self.valider_positions_avant_ajout(position_codes):
+            raise PositionInvalideException
 
         for i in range(len(jetons_a_ajouter)):
             self.ajouter_jeton(jetons_a_ajouter[i], position_codes[i])
@@ -410,7 +414,8 @@ class Plateau(Canvas):
             AssertionError: Si la ligne et la colonne sont spécifiées ou aucun des deux ne l'est. Pour les curieux(ses),
                             il s'agit d'un OU Exclusif (XOR): https://fr.wikipedia.org/wiki/Fonction_OU_exclusif).
         """
-        assert (ligne is None) ^ (colonne is None), 'Précisez seulement la ligne ou la colonne, pas les deux.'
+        if not (ligne is None) ^ (colonne is None):
+            raise CaseOccupeeException
 
         positions_decodees = [self.decode_position(p) for p in nouvelles_positions]
         mots, score_total = [], 0

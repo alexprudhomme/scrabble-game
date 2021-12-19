@@ -17,3 +17,10 @@ class AucunJeton(Exception):
 
 class FinPartie(Exception):
     pass
+
+
+class MauvaiseLangue(Exception):
+    pass
+
+class MauvaisNbrJoueurs(Exception):
+    pass
