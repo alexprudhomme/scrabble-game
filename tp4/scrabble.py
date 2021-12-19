@@ -1,5 +1,5 @@
 import pickle
-from tkinter import Canvas, NSEW, Tk, W, S, N, SE, Frame, Button, messagebox, simpledialog, Label, StringVar
+from tkinter import Canvas, Tk, W, S, N, Frame, Button, messagebox, simpledialog, Label, StringVar, Toplevel
 from pathlib import Path
 from random import choice, shuffle
 
@@ -31,6 +31,7 @@ class Scrabble(Tk):
         position_selection_chevalet (int): Mémorise la position du jeton sélectionné sur le chevalet
                                             (vaut None si aucun jeton n'est sélectionné)
     """
+
     def __init__(self):
         """
         Constructeur
@@ -47,7 +48,7 @@ class Scrabble(Tk):
         self.plateau = Plateau(self, self.nb_pixels_par_case)
         self.plateau.grid(row=0, column=0, sticky=N)
 
-        self.chevalet = Canvas(self, height=self.nb_pixels_par_case, width=7*self.nb_pixels_par_case, bg='#645b4b')
+        self.chevalet = Canvas(self, height=self.nb_pixels_par_case, width=7 * self.nb_pixels_par_case, bg='#645b4b')
         self.chevalet.grid(row=1, column=0, sticky=S)
 
         self.position_selection_chevalet = None
@@ -56,17 +57,30 @@ class Scrabble(Tk):
         panneau_boutons = Frame(self)
         panneau_boutons.grid(row=0, column=1, sticky=S)
 
-        bouton = Button(panneau_boutons, text="Mélanger le chevalet", command=self.clic_melanger_chevalet, width=25, height=2)
+        bouton = (Button(panneau_boutons, text="Mélanger le chevalet", fg='#4285F4',
+                         command=self.clic_melanger_chevalet, width=25,
+                         height=2))
         bouton.grid(row=0, column=0, pady=15)
 
-        bouton = Button(panneau_boutons, text="Jouer", command=self.jouer_un_tour, width=25, height=2)
+        bouton = (Button(panneau_boutons, text="Jouer", fg='#DB4437',
+                         command=self.jouer_un_tour, width=25,
+                         height=2))
         bouton.grid(row=1, column=0, pady=15)
 
-        bouton = Button(panneau_boutons, text="Passer son tour", command=self.passer_son_tour, width=25, height=2)
+        bouton = (Button(panneau_boutons, text="Passer son tour", fg='#F4B400',
+                         command=self.passer_son_tour, width=25,
+                         height=2))
         bouton.grid(row=2, column=0, pady=15)
 
-        bouton = Button(panneau_boutons, text="Nouvelle partie", command=self.nouvelle_partie, width=25, height=2)
+        bouton = (Button(panneau_boutons, text="Nouvelle partie", fg='#0f9f58',
+                         command=self.nouvelle_partie, width=25,
+                         height=2))
         bouton.grid(row=3, column=0, pady=15)
+
+        bouton = (Button(panneau_boutons, text="Contrôle",
+                         command=self.fenetre_controle, width=25,
+                        height=1))
+        bouton.grid(row=4, column=0, pady=5)
 
         # Associe les évènements aux méthodes correspondants
         self.plateau.tag_bind('case', '<Button-1>', self.clic_case_plateau)
@@ -77,7 +91,7 @@ class Scrabble(Tk):
         # Vous pouvez afficher une boite de dialogue afin de demander à l'utilisateur le nombre de joueurs
         # et la langue souhaitée et ensuite passer ces valeurs en arguments à la méthode initialiser_jeu
         nbr_joueurs = simpledialog.askinteger('Joueurs', 'Entrez le nombre de joueurs (2-4)')
-        while nbr_joueurs not in range(2,5):
+        while nbr_joueurs not in range(2, 5):
             messagebox.showerror('Oups!', "Le nombre de joueurs doit être entre 2 et 4")
             nbr_joueurs = simpledialog.askinteger('Joueurs', 'Entrez le nombre de joueurs (2-4)')
         langue = simpledialog.askstring('Langue', 'Entrez FR pour francais et EN pour anglais')
@@ -89,13 +103,25 @@ class Scrabble(Tk):
         # Creation des informations joueur
         self.afficher_info_joueurs()
 
+    def fenetre_controle(self):
+        window = Toplevel(self)
+        window.geometry("750x150")
+        window.title('Contrôle')
+        regle = Label(window, text='<Escape> ou <Button-3> --> Ramène les jetons dans le chevalet', pady=10)
+        regle.grid(row=1, column=0, sticky=W)
+        regle = Label(window, text='                       <Button-1> --> Permet de prendre un jeton et permet de placer un jeton sur le plateau', pady=10)
+        regle.grid(row=2, column=0, sticky=N)
+
+
     def nouvelle_partie(self):
         """Detruit la partie presente et en cree une nouvelle.
                 """
-        result = messagebox.askyesno('Nouvelle partie', 'Êtes-vous sur de vouloir créer une nouvelle partie ?', icon='question')
+        result = messagebox.askyesno('Nouvelle partie', 'Êtes-vous sur de vouloir créer une nouvelle partie ?',
+                                     icon='question')
         if result is True:
             self.destroy()
             jeu = Scrabble()
+
             jeu.mainloop()
         else:
             pass
@@ -123,8 +149,8 @@ class Scrabble(Tk):
                 l = Label(panneau_joueurs, textvariable=var, bg='#00fbff', relief='raised', width=25, pady=20)
             else:
                 l = Label(panneau_joueurs, textvariable=var, pady=20)
-            l.grid(row=0+i, column=0)
-            i = i+1
+            l.grid(row=0 + i, column=0)
+            i = i + 1
 
     def initialiser_jeu(self, nb_joueurs=2, langue='fr'):
         """
@@ -300,7 +326,7 @@ class Scrabble(Tk):
         Dessine le chevalet du joueur actif sur l'interface graphique.
         """
         self.chevalet.delete('lettre')
-        
+
         for j, jeton in enumerate(self.joueur_actif.chevalet):
             if jeton is not None:
                 selection = j == self.position_selection_chevalet
@@ -396,7 +422,7 @@ class Scrabble(Tk):
                 pickle.dump(self, f)
         except:
             return False
-        
+
         return True
 
 

@@ -22,5 +22,6 @@ class FinPartie(Exception):
 class MauvaiseLangue(Exception):
     pass
 
+
 class MauvaisNbrJoueurs(Exception):
     pass
