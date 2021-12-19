@@ -3,6 +3,7 @@ from tkinter import Canvas, CENTER
 from tp4.case import Case
 from tp4.jeton import Jeton
 from tp4.utils import coordonnees_case, dessiner_jeton
+from tp4.exceptions import *
 
 
 class Plateau(Canvas):
@@ -198,7 +199,9 @@ class Plateau(Canvas):
         Raises:
             AssertionError: Si le code de la position est invalide.
         """
-        assert self.code_position_est_valide(code), 'Code position invalide.'
+        if not self.code_position_est_valide(code):
+            raise PositionInvalideException
+
         code = code.upper()
         index_ligne = ord(code[0]) - ord('A')
         index_colonne = int(code[1:]) - 1
@@ -327,7 +330,10 @@ class Plateau(Canvas):
             elif valide and meme_col:
                 col, n, m = cols[0], min(lignes), max(lignes)
                 valide = all([(not self.cases[i][col].est_vide()) for i in range(n, m + 1) if i not in lignes])
-
+        if not valide:
+            for pos in positions_codes:
+                self.retirer_jeton(pos)
+            raise PositionInvalideException
         return valide
 
     def placer_mots(self, jetons_a_ajouter, position_codes):

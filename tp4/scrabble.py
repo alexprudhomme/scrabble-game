@@ -7,7 +7,7 @@ from tp4.joueur import Joueur
 from tp4.plateau import Plateau
 from tp4.jeton import Jeton
 from tp4.utils import dessiner_jeton
-
+from tp4.exceptions import *
 
 BASE_DIR = Path(__file__).resolve().parent
 
@@ -54,15 +54,19 @@ class Scrabble(Tk):
 
         # Création des boutons
         panneau_boutons = Frame(self)
-        panneau_boutons.grid(row=1, column=1, sticky=SE)
+        panneau_boutons.grid(row=0, column=1, sticky=S)
 
-        bouton = Button(panneau_boutons, text="Mélanger le chevalet", command=self.clic_melanger_chevalet)
-        bouton.grid(row=0, column=0, pady=5)
+        bouton = Button(panneau_boutons, text="Mélanger le chevalet", command=self.clic_melanger_chevalet, width=25, height=2)
+        bouton.grid(row=0, column=0, pady=15)
 
-        bouton = Button(panneau_boutons, text="Jouer", command=self.jouer_un_tour)
-        bouton.grid(row=1, column=0, pady=5)
+        bouton = Button(panneau_boutons, text="Jouer", command=self.jouer_un_tour, width=25, height=2)
+        bouton.grid(row=1, column=0, pady=15)
 
+        bouton = Button(panneau_boutons, text="Passer son tour", command=self.passer_son_tour, width=25, height=2)
+        bouton.grid(row=2, column=0, pady=15)
 
+        bouton = Button(panneau_boutons, text="Nouvelle partie", command=self.nouvelle_partie, width=25, height=2)
+        bouton.grid(row=3, column=0, pady=15)
 
         # Associe les évènements aux méthodes correspondants
         self.plateau.tag_bind('case', '<Button-1>', self.clic_case_plateau)
@@ -84,6 +88,17 @@ class Scrabble(Tk):
         self.initialiser_jeu(nbr_joueurs, langue)
         # Creation des informations joueur
         self.afficher_info_joueurs()
+
+    def nouvelle_partie(self):
+        self.destroy()
+        jeu = Scrabble()
+        jeu.mainloop()
+        pass
+
+    def passer_son_tour(self):
+        self.reinitialiser_tour()
+        self.joueur_suivant()
+
     def afficher_info_joueurs(self):
         """Affiche les info des joueurs
 
@@ -96,9 +111,9 @@ class Scrabble(Tk):
             var = StringVar()
             var.set(x.__str__())
             if x == self.joueur_actif:
-                l = Label(panneau_joueurs, textvariable=var, bg='#00fbff', font='Arial', relief='raised')
+                l = Label(panneau_joueurs, textvariable=var, bg='#00fbff', relief='raised', width=25, pady=20)
             else:
-                l = Label(panneau_joueurs, textvariable=var)
+                l = Label(panneau_joueurs, textvariable=var, pady=20)
             l.grid(row=0+i, column=0)
             i = i+1
 
@@ -138,6 +153,7 @@ class Scrabble(Tk):
                     ('P', 2, 3), ('F', 2, 4), ('H', 2, 4), ('V', 2, 4), ('J', 1, 8),
                     ('Q', 1, 8), ('K', 1, 10), ('W', 1, 10), ('X', 1, 10), ('Y', 1, 10),
                     ('Z', 1, 10)]
+
             chemin_fichier_dictionnaire = BASE_DIR / 'dictionnaire_francais.txt'
         elif langue.upper() == 'EN':
             # Infos disponibles sur https://fr.wikipedia.org/wiki/Lettres_du_Scrabble
@@ -148,7 +164,6 @@ class Scrabble(Tk):
                     ('Q', 1, 10), ('K', 1, 5), ('W', 2, 4), ('X', 1, 8), ('Y', 2, 4),
                     ('Z', 1, 10)]
             chemin_fichier_dictionnaire = BASE_DIR / 'dictionnaire_anglais.txt'
-
         self.jetons_libres = [Jeton(lettre, valeur) for lettre, occurences, valeur in data for i in range(occurences)]
         with open(chemin_fichier_dictionnaire, 'r') as f:
             self.dictionnaire = [x[:-1].upper() for x in f.readlines() if len(x[:-1]) > 1]
@@ -252,18 +267,22 @@ class Scrabble(Tk):
         Le nouveau joueur actif est celui à l'index du (joueur courant + 1) % nb_joueurs.
         Si on n'a aucun joueur actif, on détermine au hasard le suivant.
         """
+        try:
+            if self.joueur_actif is None:
+                self.joueur_actif = choice(self.joueurs)
+            else:
+                self.joueur_actif = self.joueurs[(self.joueurs.index(self.joueur_actif) + 1) % len(self.joueurs)]
 
-        if self.joueur_actif is None:
-            self.joueur_actif = choice(self.joueurs)
-        else:
-            self.joueur_actif = self.joueurs[(self.joueurs.index(self.joueur_actif) + 1) % len(self.joueurs)]
-
-        if self.joueur_actif.nb_a_tirer() > 0:
-            for jeton in self.tirer_jetons(self.joueur_actif.nb_a_tirer()):
-                self.joueur_actif.ajouter_jeton(jeton)
-        self.position_selection_chevalet = None
-        self.dessiner_chevalet()
-        self.afficher_info_joueurs()
+            if self.joueur_actif.nb_a_tirer() > 0:
+                for jeton in self.tirer_jetons(self.joueur_actif.nb_a_tirer()):
+                    self.joueur_actif.ajouter_jeton(jeton)
+            self.position_selection_chevalet = None
+            self.dessiner_chevalet()
+            self.afficher_info_joueurs()
+        except FinPartie:
+            gagnant = self.determiner_gagnant()
+            messagebox.showinfo('Oops', f'Le gagnant est {gagnant.nom} avec {gagnant.points} points')
+            self.quit()
 
     def dessiner_chevalet(self):
         """
@@ -290,7 +309,8 @@ class Scrabble(Tk):
         Raises:
             AssertionError: Si n n'est pas compris dans l'intervalle [0, nombre total de jetons libres].
         """
-        assert 0 <= n <= len(self.jetons_libres), 'n doit être compris entre 0 et le nombre total de jetons libres.'
+        if not 0 <= n <= len(self.jetons_libres):
+            raise FinPartie
         shuffle(self.jetons_libres)
         res = self.jetons_libres[:n]
         self.jetons_libres = self.jetons_libres[n:]
@@ -303,13 +323,14 @@ class Scrabble(Tk):
 
         NOTE: Vous devez compléter cette méthode afin de passer au joueur suivant!
         """
-        points_depart = self.joueur_actif.points
-        liste_jetons, liste_positions = self.plateau.retirer_jetons_en_jeu()
-        if len(liste_positions) == 0:
-            messagebox.showerror('Oups!', "Aucun jeton n'est pacé sur le plateau.")
-        elif not self.plateau.valider_positions_avant_ajout(liste_positions):
-            messagebox.showerror('Oups!', "La position des lettres n'est pas valide.")
-        else:
+
+        try:
+            points_depart = self.joueur_actif.points
+            liste_jetons, liste_positions = self.plateau.retirer_jetons_en_jeu()
+            if len(liste_positions) == 0:
+                raise AucunJeton
+            self.plateau.valider_positions_avant_ajout(liste_positions)
+
             mots, score = self.plateau.placer_mots(liste_jetons, liste_positions)
 
             if any([not self.mot_permis(m) for m in mots]):
@@ -321,11 +342,31 @@ class Scrabble(Tk):
                 self.joueur_actif.ajouter_points(score)
                 liste_jetons = []
 
-        for jeton in liste_jetons:
-            self.joueur_actif.ajouter_jeton(jeton)
-        self.reinitialiser_tour()
-        if points_depart != self.joueur_actif.points:
-            self.joueur_suivant()
+            for jeton in liste_jetons:
+                self.joueur_actif.ajouter_jeton(jeton)
+
+            self.reinitialiser_tour()
+            if points_depart != self.joueur_actif.points:
+                self.joueur_suivant()
+
+        except PositionInvalideException:
+            for jeton in liste_jetons:
+                self.joueur_actif.ajouter_jeton(jeton)
+            messagebox.showerror('Oups!', "La position des lettres n'est pas valide.")
+            self.reinitialiser_tour()
+        except MotNonPermisException:
+            for jeton in liste_jetons:
+                self.joueur_actif.ajouter_jeton(jeton)
+            messagebox.showerror('Oups!', "Au moins l'un des mots formés est absent du dictionnaire.")
+            self.reinitialiser_tour()
+        except CaseOccupeeException:
+            for jeton in liste_jetons:
+                self.joueur_actif.ajouter_jeton(jeton)
+            messagebox.showerror('Oups!', "On ne peut placer un jeton sur cette case.")
+            self.reinitialiser_tour()
+        except AucunJeton:
+            messagebox.showerror('Oups!', "Aucun jeton n'est pacé sur le plateau.")
+            self.reinitialiser_tour()
 
     def sauvegarder_partie(self, nom_fichier):
         """
