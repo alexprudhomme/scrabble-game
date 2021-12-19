@@ -90,19 +90,28 @@ class Scrabble(Tk):
         self.afficher_info_joueurs()
 
     def nouvelle_partie(self):
-        self.destroy()
-        jeu = Scrabble()
-        jeu.mainloop()
-        pass
+        """Detruit la partie presente et en cree une nouvelle.
+                """
+        result = messagebox.askyesno('Nouvelle partie', 'Êtes-vous sur de vouloir créer une nouvelle partie ?', icon='question')
+        if result is True:
+            self.destroy()
+            jeu = Scrabble()
+            jeu.mainloop()
+        else:
+            pass
 
     def passer_son_tour(self):
+        """Passe le tour du joueur.
+
+
+                """
         self.reinitialiser_tour()
         self.joueur_suivant()
 
     def afficher_info_joueurs(self):
-        """Affiche les info des joueurs
+        """Affiche les info des joueurs.
 
-        :return:
+
         """
         panneau_joueurs = Frame(self)
         panneau_joueurs.grid(row=0, column=1, sticky=N)
